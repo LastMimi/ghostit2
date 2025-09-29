@@ -2,12 +2,16 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const { v4: uuidv4 } = require('uuid');
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
+
 app.use(express.json());
 app.use(express.static('public'));
+
 const groups = new Map();
+
 function startRotation(groupId) {
     const group = groups.get(groupId);
     group.rotationTimer = setInterval(() => {
@@ -15,23 +19,34 @@ function startRotation(groupId) {
             info.issueId = `Issue-${Math.floor(Math.random() * 10000)}`;
         });
         io.to(groupId).emit('participants', getParticipants(groupId));
-    }, 300000);
+    }, 300000); // 5 minutes
 }
+
 function getParticipants(groupId) {
     const group = groups.get(groupId);
     return Array.from(group.participants.values()).map(info => info.issueId);
 }
+
 app.post('/api/groups', (req, res) => {
     const groupId = uuidv4().slice(0, 8);
-    groups.set(groupId, { participants: new Map(), messages: [], rotationTimer: null });
+    groups.set(groupId, {
+        participants: new Map(),
+        messages: [],
+        rotationTimer: null
+    });
     startRotation(groupId);
     res.json({ groupId });
 });
+
 app.get('/api/groups/:id', (req, res) => {
     const group = groups.get(req.params.id);
     if (!group) return res.status(404).json({ error: 'Group not found' });
-    res.json({ participants: getParticipants(req.params.id), messages: group.messages });
+    res.json({
+        participants: getParticipants(req.params.id),
+        messages: group.messages
+    });
 });
+
 io.on('connection', socket => {
     socket.on('join', ({ groupId, internalId }) => {
         if (!groups.has(groupId)) return;
@@ -50,6 +65,7 @@ io.on('connection', socket => {
         socket.emit('joined', { internalId });
         io.to(groupId).emit('participants', getParticipants(groupId));
     });
+
     socket.on('message', ({ groupId, internalId, text }) => {
         if (!groups.has(groupId)) return;
         const group = groups.get(groupId);
@@ -60,5 +76,6 @@ io.on('connection', socket => {
         io.to(groupId).emit('message', msg);
     });
 });
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
