@@ -1,4 +1,3 @@
-// public/join.js
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('join-form');
     const groupIdInput = document.getElementById('group-id');
@@ -8,7 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const groupId = groupIdInput.value.trim();
         if (!groupId) return;
 
-        let joinedGroups = JSON.parse(localStorage.getItem('joinedGroups')) || [];
+        const response = await fetch(`/api/groups/${groupId}`);
+        if (!response.ok) {
+            alert('Group not found');
+            return;
+        }
+
+        const joinedGroups = JSON.parse(localStorage.getItem('joinedGroups')) || [];
         if (!joinedGroups.includes(groupId)) {
             joinedGroups.push(groupId);
             localStorage.setItem('joinedGroups', JSON.stringify(joinedGroups));
