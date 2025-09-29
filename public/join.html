@@ -1,16 +1,26 @@
-<!-- public/dashboard.html (Dashboard) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Join Group</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-…        <h2>Your Groups</h2>
-        <ul id="group-list"></ul>
+    <header>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/join.html">Join Group</a>
+        </nav>
+    </header>
+    <main>
+        <h1>Join a Group</h1>
+        <form id="join-form">
+            <input type="text" id="group-id" placeholder="Enter Group ID" required>
+            <button type="submit">Join</button>
+        </form>
     </main>
-    <script src="dashboard.js"></script>
+    <script src="join.js"></script>
 </body>
 </html>
