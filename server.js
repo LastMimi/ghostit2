@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const { v4: uuidv4 } = require('uuid');
+const path = require('path');  // Add this for path handling
 
 const app = express();
 const server = http.createServer(app);
@@ -9,6 +10,11 @@ const io = socketIo(server);
 
 app.use(express.json());
 app.use(express.static('public'));
+
+// Add this dynamic route for /group/[id] – serves group.html with the ID
+app.get('/group/:id', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'group.html'));
+});
 
 const groups = new Map();
 
